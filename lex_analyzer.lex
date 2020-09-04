@@ -22,8 +22,13 @@ int getNumber(){
 DIGIT	[0-9]
 ID	[a-zA-Z][a-zA-Z0-9]*
 DFLOAT [0-9]"."[0-9]*
-
+LINE_COMMENT [//].*[\n]
+BLOCK_COMMENT [/*].*[*/]
 %%
+
+{LINE_COMMENT}
+
+{BLOCK_COMMENT}
 
 auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for|goto|if|int|long|register|return|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|while {
 	printf("[reserved_word, %s]", yytext);
@@ -65,13 +70,11 @@ auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for
 
 [ \n]+ {printf("\n");}		
 
-[*]
 .	printf("Caractere nao reconhecido: %s", yytext);
 
 %%
 
 int main(int argc, char *argv[]){
-	int aux = 0;
 	yyin = fopen(argv[1], "r");
 	yylex();
 	fclose(yyin);
