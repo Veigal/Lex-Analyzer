@@ -8,7 +8,7 @@
 %{
 
 #define MAX_VAR_LENGTH 30
-#define MAX_VARS      100
+#define MAX_VARS       100
 #define MAX_CONTEXTS   15 
 
 #include <math.h>
@@ -23,6 +23,13 @@ typedef struct VariableIdentifier{
 typedef struct ContextIdentifier{
 	varId variables[MAX_VARS];
 } contextId;
+
+enum ErrorIdentifier{
+	var_overflow,
+	var_length_overflow,
+	context_overflow,
+	context_underflow
+} errorId;
 
 //global var definition
 int currentContext    = 0;
@@ -42,13 +49,20 @@ void initContexts(){
 
 void enterNewContext(){
 	++currentContext;
+	if(currentContext > MAX_CONTEXTS)
+		FATAL_ERROR(context_overflow);
 }
 
 void leaveContext(){
 	--currentContext;
+	if(currentContext < 0)
+		FATAL_ERROR(context_underflow);
 }
 
 void addVarToContext(char *varName, int varId){
+	if(strlen(varName) > MAX_VAR_LENGTH)
+		FATAL_ERROR(var_length_overflow);
+
 	for(int i=0; i<MAX_VARS; i++){
 		if( allContexts[currentContext].variables[i].id == -1 ){
 			allContexts[currentContext].variables[i].id   = varId;
@@ -56,6 +70,19 @@ void addVarToContext(char *varName, int varId){
 			return;
 		}
 	}
+	FATAL_ERROR(var_overflow);
+}
+
+void FATAL_ERROR( int error ){
+	char errorMsg[500];
+	switch(error){
+		case var_overflow:        sprintf(errorMsg, "fatal variable error -- max number of variables (%d) per context reached", MAX_VARS)    ; break;
+		case var_length_overflow: sprintf(errorMsg, "fatal variable error -- variable length greater than max allowed (%d) ", MAX_VAR_LENGTH); break;
+		case context_overflow:    sprintf(errorMsg, "fatal context error -- max number of contexts (%d) reached", MAX_CONTEXTS)              ; break;
+		case context_underflow:   sprintf(errorMsg, "fatal context error -- illegal attempt to leave unopened context")                      ; break;
+	}
+	(void) fprintf( stderr, "%s\n", errorMsg );
+	exit( -1 );
 }
 
 int getId(char *varName){
