@@ -123,7 +123,7 @@ WORD	               [a-zA-Z][a-zA-Z0-9]*
 DFLOAT                 [0-9]"."[0-9]*
 LINE_COMMENT           [//].*[\n]
 BLOCK_COMMENT          "/*"([^*]|\*+[^*/])*\*+"/"
-VAR_INC                "<"([a-zA-Z][a-zA-Z0-9]*)(.h)">"
+VAR_INC                "<"({WORD})(.h)">"
 STR                    ["].*["]
 ARRAY                  [[][DIGIT]*[]]
 VAR_NORMAL             {WORD}[{ARRAY}]*

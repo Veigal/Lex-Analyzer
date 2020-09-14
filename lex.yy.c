@@ -768,7 +768,7 @@ void addVarToContext(char *varName, int varId){
 			return;
 		}
 	}
-	YY_FATAL_ERROR("123");
+	FATAL_ERROR(var_overflow);
 }
 
 void FATAL_ERROR( int error ){
