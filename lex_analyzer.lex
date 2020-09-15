@@ -123,7 +123,7 @@ WORD	               [a-zA-Z][a-zA-Z0-9]*
 DFLOAT                 [0-9]"."[0-9]*
 LINE_COMMENT           [//].*[\n]
 BLOCK_COMMENT          "/*"([^*]|\*+[^*/])*\*+"/"
-INC                    [#include <].*[>]
+VAR_INC                "<"({WORD})(.h)">"
 STR                    ["].*["]
 ARRAY                  [[][DIGIT]*[]]
 VAR_NORMAL             {WORD}[{ARRAY}]*
@@ -132,8 +132,8 @@ VAR_POINTER_PARENT     \*([ ])*\(([ ])*({WORD})+([ ])*\)
 VAR_POINTER            \*([ ])*({WORD})([ ])*
 VAR_POINTER_OPERATION  \*([ ])*\(([ ])*({WORD})([ ])*([+]|[-]|\*|[/])*([ ])*({WORD})([ ])*\)
 VAR_DECLARATION        int|void|float|double|char|string|String
-RESERVED_WORD          auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for|goto|if|int|long|register|return|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|while|string
-VAR                    {VAR_NORMAL}|{VAR_ADDRESS}|{VAR_POINTER_PARENT}|{VAR_POINTER}|{VAR_POINTER_OPERATION}
+RESERVED_WORD          #include|auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for|goto|if|int|long|register|return|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|while|string
+VAR                    {VAR_NORMAL}|{VAR_ADDRESS}|{VAR_POINTER_PARENT}|{VAR_POINTER}|{VAR_POINTER_OPERATION}|{VAR_INC}
 RELATIONAL_OP          "<"|"<="|"=="|"!="|">="|">"     
 ARITMETIC              "+"|"-"|"*"|"/"|"++"|"--"  
 ATTRIBUTION            "="
@@ -152,7 +152,6 @@ CLOSE_SQUARE_BRACKET   "]"
 {BLOCK_COMMENT}             { printf("[comment block]"                          ,cropEndOfLine(yytext))  ;}
 {VAR_DECLARATION}           { isDeclaration = true; printf("[reserved_word, %s]", yytext)                ;}
 {RESERVED_WORD}             { printf("[reserved_word, %s]"                      , yytext)                ;}
-{INC}                       { printf("[INCLUDE, %s]"                            , yytext)                ;}
 {DIGIT}+{VAR}               { printf("[Expressao nao identificada: %s (%d)]"    , yytext, atoi(yytext))  ;}
 {DIGIT}+                    { printf("[num, %d]"                                , atoi(yytext))          ;}
 {DFLOAT}                    { printf("[num, %s]"                                , yytext)                ;}
