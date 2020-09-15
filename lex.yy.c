@@ -702,8 +702,10 @@ char *yytext;
 #define INITIAL 0
 /* Analisador léxico - Leonardo Veiga, Pedro Accorsi e Rafaela Kreusch*/
 /* Todo*/
-/* Identificar contexto*/
-#line 9 "lex_analyzer.lex"
+/* Reconhecer "*(pt + i)"*/
+/* Retirar o print do comentário de bloco*/
+/* Retirar o print do comentário de linha*/
+#line 11 "lex_analyzer.lex"
 
 #define MAX_VAR_LENGTH 30
 #define MAX_VARS       100
@@ -784,6 +786,7 @@ void FATAL_ERROR( int error ){
 }
 
 int getId(char *varName){
+	removePointer(varName);
 	int varId = 0;
 	if(isDeclaration){
 		isDeclaration = false;
@@ -814,7 +817,27 @@ char * cropEndOfLine(char * text){
 	return yytext;
 }
 
-#line 818 "lex.yy.c"
+
+void removePointer(char *str) {
+	removeChar(str, '*');
+	removeChar(str, '(');
+	removeChar(str, ')');
+	removeChar(str, ' ');
+}
+
+void removeChar(char *s, char charToRemove)
+{
+    int writer = 0, reader = 0;
+
+    while (s[reader]){
+        if (s[reader]!=charToRemove) {   
+            s[writer++] = s[reader];
+        }
+        reader++;       
+    }
+    s[writer]=0;
+}
+#line 841 "lex.yy.c"
 
 /* Macros after this point can all be overridden by user definitions in
  * section 1.
@@ -965,10 +988,10 @@ YY_DECL
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
 
-#line 149 "lex_analyzer.lex"
+#line 172 "lex_analyzer.lex"
 
 
-#line 972 "lex.yy.c"
+#line 995 "lex.yy.c"
 
 	if ( yy_init )
 		{
@@ -1053,115 +1076,115 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 151 "lex_analyzer.lex"
+#line 174 "lex_analyzer.lex"
 { printf("[Line comment: %s]"                       ,cropEndOfLine(yytext))  ;}
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 152 "lex_analyzer.lex"
+#line 175 "lex_analyzer.lex"
 { printf("[comment block]"                          ,cropEndOfLine(yytext))  ;}
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 153 "lex_analyzer.lex"
+#line 176 "lex_analyzer.lex"
 { isDeclaration = true; printf("[reserved_word, %s]", yytext)                ;}
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 154 "lex_analyzer.lex"
+#line 177 "lex_analyzer.lex"
 { printf("[reserved_word, %s]"                      , yytext)                ;}
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 155 "lex_analyzer.lex"
+#line 178 "lex_analyzer.lex"
 { printf("[Expressao nao identificada: %s (%d)]"    , yytext, atoi(yytext))  ;}
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 156 "lex_analyzer.lex"
+#line 179 "lex_analyzer.lex"
 { printf("[num, %d]"                                , atoi(yytext))          ;}
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 157 "lex_analyzer.lex"
+#line 180 "lex_analyzer.lex"
 { printf("[num, %s]"                                , yytext)                ;}
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 158 "lex_analyzer.lex"
+#line 181 "lex_analyzer.lex"
 { printf("[%d,  %s]"                                , getId(yytext), yytext) ;}
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 159 "lex_analyzer.lex"
+#line 182 "lex_analyzer.lex"
 { printf("[[string_literal, %s]"                    , yytext)                ;}
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 160 "lex_analyzer.lex"
+#line 183 "lex_analyzer.lex"
 { printf("[Relational_Op, %s]"                      , yytext)                ;}
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 161 "lex_analyzer.lex"
+#line 184 "lex_analyzer.lex"
 { printf("[Arith_Op, %s]"                           , yytext)                ;}
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 162 "lex_analyzer.lex"
+#line 185 "lex_analyzer.lex"
 { printf("[Attrib_Op, %s]"                          , yytext)                ;}
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 163 "lex_analyzer.lex"
+#line 186 "lex_analyzer.lex"
 { printf("[l_paren, %s]"                            , yytext)                ;}
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 164 "lex_analyzer.lex"
+#line 187 "lex_analyzer.lex"
 { printf("[r_paren, %s]"                            , yytext)                ;}
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 165 "lex_analyzer.lex"
+#line 188 "lex_analyzer.lex"
 { enterNewContext(); printf("[l_braces, %s]"        , yytext)                ;}
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 166 "lex_analyzer.lex"
+#line 189 "lex_analyzer.lex"
 { leaveContext();    printf("[r_braces, %s]"        , yytext)                ;}
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 167 "lex_analyzer.lex"
+#line 190 "lex_analyzer.lex"
 { printf("[comma, %s]"                              , yytext)                ;}
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 168 "lex_analyzer.lex"
+#line 191 "lex_analyzer.lex"
 { printf("[semicolon, %s]"                          , yytext)                ;}
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
-#line 169 "lex_analyzer.lex"
+#line 192 "lex_analyzer.lex"
 { printf("[l_bracket, %s]"                          , yytext)                ;}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 170 "lex_analyzer.lex"
+#line 193 "lex_analyzer.lex"
 { printf("[l_bracket, %s]"                          , yytext)                ;}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 171 "lex_analyzer.lex"
+#line 194 "lex_analyzer.lex"
 
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 173 "lex_analyzer.lex"
+#line 196 "lex_analyzer.lex"
 ECHO;
 	YY_BREAK
-#line 1165 "lex.yy.c"
+#line 1188 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -2047,7 +2070,7 @@ int main()
 	return 0;
 	}
 #endif
-#line 173 "lex_analyzer.lex"
+#line 196 "lex_analyzer.lex"
 
 
 int main(int argc, char *argv[]){

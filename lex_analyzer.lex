@@ -1,7 +1,9 @@
 /* Analisador léxico - Leonardo Veiga, Pedro Accorsi e Rafaela Kreusch*/
 
 /* Todo*/
-/* Identificar contexto*/
+/* Reconhecer "*(pt + i)"*/
+/* Retirar o print do comentário de bloco*/
+/* Retirar o print do comentário de linha*/
 
 %option noyywrap
 
@@ -86,6 +88,7 @@ void FATAL_ERROR( int error ){
 }
 
 int getId(char *varName){
+	removePointer(varName);
 	int varId = 0;
 	if(isDeclaration){
 		isDeclaration = false;
@@ -116,6 +119,26 @@ char * cropEndOfLine(char * text){
 	return yytext;
 }
 
+
+void removePointer(char *str) {
+	removeChar(str, '*');
+	removeChar(str, '(');
+	removeChar(str, ')');
+	removeChar(str, ' ');
+}
+
+void removeChar(char *s, char charToRemove)
+{
+    int writer = 0, reader = 0;
+
+    while (s[reader]){
+        if (s[reader]!=charToRemove) {   
+            s[writer++] = s[reader];
+        }
+        reader++;       
+    }
+    s[writer]=0;
+}
 %}
 
 DIGIT	               [0-9]
