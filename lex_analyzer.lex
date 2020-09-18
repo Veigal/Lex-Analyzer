@@ -4,6 +4,9 @@
 /* Reconhecer "*(pt + i)"*/
 /* Retirar o print do comentário de bloco*/
 /* Retirar o print do comentário de linha*/
+/* & = operador lógico*/
+/* Ignorar o INCLUDE*/
+/* Considerar ponteiro como operadr aritmético*/
 
 %option noyywrap
 
@@ -88,7 +91,6 @@ void FATAL_ERROR( int error ){
 }
 
 int getId(char *varName){
-	removePointer(varName);
 	int varId = 0;
 	if(isDeclaration){
 		isDeclaration = false;
@@ -119,26 +121,6 @@ char * cropEndOfLine(char * text){
 	return yytext;
 }
 
-
-void removePointer(char *str) {
-	removeChar(str, '*');
-	removeChar(str, '(');
-	removeChar(str, ')');
-	removeChar(str, ' ');
-}
-
-void removeChar(char *s, char charToRemove)
-{
-    int writer = 0, reader = 0;
-
-    while (s[reader]){
-        if (s[reader]!=charToRemove) {   
-            s[writer++] = s[reader];
-        }
-        reader++;       
-    }
-    s[writer]=0;
-}
 %}
 
 DIGIT	               [0-9]
@@ -149,16 +131,12 @@ BLOCK_COMMENT          "/*"([^*]|\*+[^*/])*\*+"/"
 VAR_INC                "<"({WORD})(.h)">"
 STR                    ["].*["]
 ARRAY                  [[][DIGIT]*[]]
-VAR_NORMAL             {WORD}[{ARRAY}]*
-VAR_ADDRESS            [&]{WORD}
-VAR_POINTER_PARENT     \*([ ])*\(([ ])*({WORD})+([ ])*\)           
-VAR_POINTER            \*([ ])*({WORD})([ ])*
-VAR_POINTER_OPERATION  \*([ ])*\(([ ])*({WORD})([ ])*([+]|[-]|\*|[/])*([ ])*({WORD})([ ])*\)
+VAR        		       {WORD}[{ARRAY}]*
 VAR_DECLARATION        int|void|float|double|char|string|String
-RESERVED_WORD          #include|auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for|goto|if|int|long|register|return|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|while|string
-VAR                    {VAR_NORMAL}|{VAR_ADDRESS}|{VAR_POINTER_PARENT}|{VAR_POINTER}|{VAR_POINTER_OPERATION}|{VAR_INC}
+RESERVED_WORD          #include|auto|break|case|char|const|continue|default|do|double|else|enum|extern|float|for|goto|if|int|long|register|return|short|signed|sizeof|static|struct|switch|typedef|union|unsigned|void|volatile|while|string|NULL
 RELATIONAL_OP          "<"|"<="|"=="|"!="|">="|">"     
 ARITMETIC              "+"|"-"|"*"|"/"|"++"|"--"  
+LOGIC_OP               "&"  
 ATTRIBUTION            "="
 OPEN_PARENTHESES       "("
 CLOSE_PARENTHESES      ")"
@@ -171,14 +149,14 @@ CLOSE_SQUARE_BRACKET   "]"
   
 %%
 
-{LINE_COMMENT}              { printf("[Line comment: %s]"                       ,cropEndOfLine(yytext))  ;}
-{BLOCK_COMMENT}             { printf("[comment block]"                          ,cropEndOfLine(yytext))  ;}
+{LINE_COMMENT}
+{BLOCK_COMMENT}
 {VAR_DECLARATION}           { isDeclaration = true; printf("[reserved_word, %s]", yytext)                ;}
 {RESERVED_WORD}             { printf("[reserved_word, %s]"                      , yytext)                ;}
 {DIGIT}+{VAR}               { printf("[Expressao nao identificada: %s (%d)]"    , yytext, atoi(yytext))  ;}
 {DIGIT}+                    { printf("[num, %d]"                                , atoi(yytext))          ;}
 {DFLOAT}                    { printf("[num, %s]"                                , yytext)                ;}
-{VAR}                       { printf("[%d,  %s]"                                , getId(yytext), yytext) ;}
+{VAR}                       { printf("[id, %d,  %s]"                                , getId(yytext), yytext) ;}
 {STR}                       { printf("[[string_literal, %s]"                    , yytext)                ;}
 {RELATIONAL_OP}             { printf("[Relational_Op, %s]"                      , yytext)                ;}
 {ARITMETIC}                 { printf("[Arith_Op, %s]"                           , yytext)                ;}
@@ -191,6 +169,8 @@ CLOSE_SQUARE_BRACKET   "]"
 {END_OF_INSTRUCTION}        { printf("[semicolon, %s]"                          , yytext)                ;}
 {OPEN_SQUARE_BRACKET}       { printf("[l_bracket, %s]"                          , yytext)                ;}
 {CLOSE_SQUARE_BRACKET}      { printf("[l_bracket, %s]"                          , yytext)                ;}
+{LOGIC_OP}					{ printf("[logic_op,  %s]"                          , yytext)                ;}
+{VAR_INC}
 "{"[\^{}}\n]*"}"	                                                                                     
 
 %%
